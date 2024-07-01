@@ -10,27 +10,59 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 from emoji_extension import EmojiExtension
 
-
-def print_logo():
-    logo = r"""
+LOGO = r"""
    __  ______    ___    __ __________  _____ 
   /  |/  / _ \  |_  |  / // /_  __/  |/  / / 
  / /|_/ / // / / __/  / _  / / / / /|_/ / /__
 /_/  /_/____/ /____/ /_//_/ /_/ /_/  /_/____/
-    """
+"""
+
+FOOTER = """
+<footer>
+    <p>Powered by <a href="https://github.com/ZigaoWang/md2html/">MD2HTML</a> by <a href="https://zigao.wang">Zigao Wang</a></p>
+</footer>
+"""
+
+COPY_BUTTON_SCRIPT = """
+<script>
+function copyCode(button) {
+    const code = button.closest('.code-header').nextElementSibling.innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check"><path fill-rule="evenodd" d="M13.78 3.22a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06L6 10.44l7.22-7.22a.75.75 0 0 1 1.06 0z"></path></svg>';
+        setTimeout(() => { 
+            button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>';
+        }, 2000);
+    });
+}
+</script>
+"""
+
+MATHJAX_SCRIPT = """
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+"""
+
+def print_logo():
     print("--------------------------------------------------")
-    print(logo)
+    print(LOGO)
     print("MD2HTML - Markdown to HTML converter")
     print("Made with 💜 by Zigao Wang.")
     print("This project is licensed under MIT License.")
     print("GitHub Repo: https://github.com/ZigaoWang/md2html/")
     print("--------------------------------------------------")
 
-
 class TaskListExtension(Extension):
     def extendMarkdown(self, md):
         md.treeprocessors.register(TaskListTreeprocessor(md), 'tasklist', 25)
-
 
 class TaskListTreeprocessor(Treeprocessor):
     def run(self, root):
@@ -51,11 +83,9 @@ class TaskListTreeprocessor(Treeprocessor):
                     ul.remove(li)
                     ul.append(new_li)
 
-
 class TocExtension(Extension):
     def extendMarkdown(self, md):
         md.treeprocessors.register(TocTreeprocessor(md), 'toc', 30)
-
 
 class TocTreeprocessor(Treeprocessor):
     def run(self, root):
@@ -80,7 +110,6 @@ class TocTreeprocessor(Treeprocessor):
 
         return root
 
-
 def convert_md_to_html(md_text, light_mode=True):
     extensions = [
         'fenced_code', 'tables', 'footnotes', 'attr_list', 'md_in_html', 'extra', 'sane_lists', 'smarty', 'codehilite',
@@ -89,7 +118,6 @@ def convert_md_to_html(md_text, light_mode=True):
     html = markdown.markdown(md_text, extensions=extensions)
     soup = BeautifulSoup(html, 'html.parser')
 
-    # Add syntax highlighting and copy button to code blocks
     for code in soup.find_all('code'):
         parent = code.parent
         if parent.name == 'pre' and code.string:
@@ -114,49 +142,24 @@ def convert_md_to_html(md_text, light_mode=True):
 
     return soup.prettify()
 
-
 def add_custom_style(html_content, css_content=None):
-    if css_content:
-        styled_html = f"<style>{css_content}</style>\n{html_content}"
-    else:
-        styled_html = html_content
+    styled_html = f"<style>{css_content}</style>\n{html_content}" if css_content else html_content
+    return styled_html + FOOTER + COPY_BUTTON_SCRIPT + MATHJAX_SCRIPT
 
-    footer = """
-    <footer>
-        <p>Powered by <a href="https://github.com/ZigaoWang/md2html/">MD2HTML</a> by <a href="https://zigao.wang">Zigao Wang</a></p>
-    </footer>
-    """
+def read_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return file.read()
 
-    copy_button_script = """
-    <script>
-    function copyCode(button) {
-        const code = button.closest('.code-header').nextElementSibling.innerText;
-        navigator.clipboard.writeText(code).then(() => {
-            button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check"><path fill-rule="evenodd" d="M13.78 3.22a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06L6 10.44l7.22-7.22a.75.75 0 0 1 1.06 0z"></path></svg>';
-            setTimeout(() => { 
-                button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>';
-            }, 2000);
-        });
-    }
-    </script>
-    """
+def write_file(file_path, content):
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(content)
 
-    mathjax_script = """
-    <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-      }
-    };
-    </script>
-    <script type="text/javascript" id="MathJax-script" async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
-    """
+def choose_mode():
+    return input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
 
-    return styled_html + footer + copy_button_script + mathjax_script
-
+def get_css_content(light_mode):
+    css_path = 'style_light.css' if light_mode else 'style_dark.css'
+    return read_file(css_path) if os.path.isfile(css_path) else ""
 
 def prompt_based_conversion():
     while True:
@@ -168,25 +171,17 @@ def prompt_based_conversion():
             print("File not found. Please check the path and try again.")
             continue
 
-        light_mode = input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
-        css_path = 'style_light.css' if light_mode else 'style_dark.css'
-        css_content = ""
-        if os.path.isfile(css_path):
-            with open(css_path, 'r', encoding='utf-8') as css_file:
-                css_content = css_file.read()
+        light_mode = choose_mode()
+        css_content = get_css_content(light_mode)
+        md_text = read_file(md_file_path)
 
-        with open(md_file_path, 'r', encoding='utf-8') as md_file:
-            md_text = md_file.read()
-
-        html = convert_md_to_html(md_text, light_mode=light_mode)
+        html = convert_md_to_html(md_text, light_mode)
         styled_html = add_custom_style(html, css_content)
 
         output_file = input("Enter the name of the output HTML file (default: output.html): ").strip() or 'output.html'
-        with open(output_file, 'w', encoding='utf-8') as html_file:
-            html_file.write(styled_html)
+        write_file(output_file, styled_html)
         print(f"Markdown converted to HTML successfully! Output saved to {output_file}")
         break
-
 
 def arg_based_conversion(args):
     if not os.path.isfile(args.input_file):
@@ -194,24 +189,16 @@ def arg_based_conversion(args):
         return
 
     light_mode = args.mode.lower() != 'dark'
-    css_path = 'style_light.css' if light_mode else 'style_dark.css'
-    css_content = ""
-    if os.path.isfile(css_path):
-        with open(css_path, 'r', encoding='utf-8') as css_file:
-            css_content = css_file.read()
+    css_content = read_file(args.css_file) if args.css_file and os.path.isfile(args.css_file) else get_css_content(light_mode)
+    md_text = read_file(args.input_file)
 
-    with open(args.input_file, 'r', encoding='utf-8') as md_file:
-        md_text = md_file.read()
-
-    html = convert_md_to_html(md_text, light_mode=light_mode)
+    html = convert_md_to_html(md_text, light_mode)
     styled_html = add_custom_style(html, css_content)
 
     output_path = os.path.join(args.output_dir, args.output_file)
-    with open(output_path, 'w', encoding='utf-8') as html_file:
-        html_file.write(styled_html)
+    write_file(output_path, styled_html)
 
     print(f"Markdown converted to HTML successfully! Output saved to {output_path}")
-
 
 def main():
     print_logo()
@@ -229,7 +216,6 @@ def main():
         arg_based_conversion(args)
     else:
         prompt_based_conversion()
-
 
 if __name__ == "__main__":
     main()
