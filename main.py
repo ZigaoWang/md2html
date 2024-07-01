@@ -1,7 +1,6 @@
 import argparse
 import os
 import xml.etree.ElementTree as etree
-
 import markdown
 from bs4 import BeautifulSoup
 from markdown.extensions import Extension
@@ -9,7 +8,6 @@ from markdown.treeprocessors import Treeprocessor
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
-
 from emoji_extension import EmojiExtension
 
 
@@ -89,7 +87,7 @@ def convert_md_to_html(md_text, light_mode=True):
         EmojiExtension(), TaskListExtension(), TocExtension()
     ]
     html = markdown.markdown(md_text, extensions=extensions)
-    soup = BeautifulSoup(html, 'lxml')
+    soup = BeautifulSoup(html, 'html.parser')
 
     # Add syntax highlighting and copy button to code blocks
     for code in soup.find_all('code'):
@@ -99,11 +97,11 @@ def convert_md_to_html(md_text, light_mode=True):
             lexer = get_lexer_by_name(language, stripall=True)
             formatter = HtmlFormatter(style='default' if light_mode else 'monokai')
             highlighted_code = highlight(code.string, lexer, formatter)
-            code.replace_with(BeautifulSoup(highlighted_code, 'lxml'))
+            code.replace_with(BeautifulSoup(highlighted_code, 'html.parser'))
 
-            copy_button_html = '''
+            copy_button_html = f'''
             <div class="code-header">
-                <span class="language-label">{}</span>
+                <span class="language-label">{language}</span>
                 <button class="copy-button" onclick="copyCode(this)">
                     <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
                         <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
@@ -111,8 +109,8 @@ def convert_md_to_html(md_text, light_mode=True):
                     </svg>
                 </button>
             </div>
-            '''.format(language)
-            parent.insert_before(BeautifulSoup(copy_button_html, 'lxml'))
+            '''
+            parent.insert_before(BeautifulSoup(copy_button_html, 'html.parser'))
 
     return soup.prettify()
 
