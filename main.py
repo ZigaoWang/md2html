@@ -16,7 +16,7 @@ def print_logo():
     """
     print("--------------------------------------------------")
     print(logo)
-    print("MD2HTML - Markdown to HTML converter")
+    print("MD2HTML - Markdown to HTML Converter")
     print("Made with 💜 by Zigao Wang.")
     print("This project is licensed under MIT License.")
     print("GitHub Repo: https://github.com/ZigaoWang/md2html/")
