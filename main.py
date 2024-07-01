@@ -2,7 +2,6 @@ import os
 import markdown
 from bs4 import BeautifulSoup
 
-
 def print_logo():
     logo = r"""
    __  ______    ___    __ __________  _____ 
@@ -13,24 +12,28 @@ def print_logo():
     print("--------------------------------------------------")
     print(logo)
     print("MD2HTML - Markdown to HTML converter")
-    print("Made by 💜 from Zigao Wang.")
+    print("Made with 💜 by Zigao Wang.")
     print("This project is licensed under MIT License.")
     print("GitHub Repo: https://github.com/ZigaoWang/md2html/")
     print("--------------------------------------------------")
-
 
 def convert_md_to_html(md_text):
     html = markdown.markdown(md_text)
     soup = BeautifulSoup(html, 'lxml')
     return soup.prettify()
 
-
 def add_custom_style(html_content, css_content=None):
     if css_content:
         styled_html = f"<style>{css_content}</style>\n{html_content}"
-        return styled_html
-    return html_content
+    else:
+        styled_html = html_content
 
+    footer = """
+    <footer>
+        <p>Powered by <a href="https://github.com/ZigaoWang/md2html/">MD2HTML</a> by <a href="https://zigao.wang">Zigao Wang</a></p>
+    </footer>
+    """
+    return styled_html + footer
 
 def main():
     print_logo()
@@ -59,7 +62,6 @@ def main():
             html_file.write(styled_html)
         print(f"Markdown converted to HTML successfully! Output saved to {output_file}")
         break
-
 
 if __name__ == "__main__":
     main()
