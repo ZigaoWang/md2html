@@ -80,7 +80,18 @@ def add_custom_style(html_content, css_content=None):
     </script>
     """
 
-    return styled_html + footer + copy_button_script
+    mathjax_script = """
+    <script>
+    (function () {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+        document.head.appendChild(script);
+    })();
+    </script>
+    """
+
+    return styled_html + footer + copy_button_script + mathjax_script
 
 
 def prompt_based_conversion():
