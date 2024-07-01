@@ -1,13 +1,13 @@
 import argparse
 import os
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as ET
 import markdown
-from bs4 import BeautifulSoup
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
+from bs4 import BeautifulSoup
 from emoji_extension import EmojiExtension
 
 LOGO = r"""
@@ -30,7 +30,8 @@ function copyCode(button) {
     navigator.clipboard.writeText(code).then(() => {
         button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check"><path fill-rule="evenodd" d="M13.78 3.22a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06L6 10.44l7.22-7.22a.75.75 0 0 1 1.06 0z"></path></svg>';
         setTimeout(() => { 
-            button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>';
+            button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+            <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>';
         }, 2000);
     });
 }
@@ -69,8 +70,8 @@ class TaskListTreeprocessor(Treeprocessor):
         for ul in root.iter('ul'):
             for li in list(ul):
                 if li.text and (li.text.startswith('[ ] ') or li.text.startswith('[x] ')):
-                    new_li = etree.Element('li')
-                    checkbox = etree.Element('input')
+                    new_li = ET.Element('li')
+                    checkbox = ET.Element('input')
                     checkbox.set('type', 'checkbox')
                     checkbox.set('disabled', 'disabled')
 
@@ -89,18 +90,18 @@ class TocExtension(Extension):
 
 class TocTreeprocessor(Treeprocessor):
     def run(self, root):
-        toc_html = etree.Element('div', {'class': 'toc'})
-        toc_title = etree.SubElement(toc_html, 'h2')
+        toc_html = ET.Element('div', {'class': 'toc'})
+        toc_title = ET.SubElement(toc_html, 'h2')
         toc_title.text = 'Table of Contents'
-        toc_list = etree.SubElement(toc_html, 'ul')
+        toc_list = ET.SubElement(toc_html, 'ul')
 
         for header in root.iter():
             if header.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                 level = int(header.tag[1])
                 if 'id' not in header.attrib:
                     header.set('id', header.text.replace(' ', '-').lower())
-                toc_item = etree.SubElement(toc_list, 'li', {'class': f'toc-level-{level}'})
-                toc_link = etree.SubElement(toc_item, 'a', {'href': f'#{header.get("id")}'})
+                toc_item = ET.SubElement(toc_list, 'li', {'class': f'toc-level-{level}'})
+                toc_link = ET.SubElement(toc_item, 'a', {'href': f'#{header.get("id")}'})
                 toc_link.text = header.text
 
         for el in root.iter():
@@ -133,8 +134,7 @@ def convert_md_to_html(md_text, light_mode=True):
                 <button class="copy-button" onclick="copyCode(this)">
                     <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
                         <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
-                        <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
-                    </svg>
+                        <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>
                 </button>
             </div>
             '''
@@ -144,7 +144,24 @@ def convert_md_to_html(md_text, light_mode=True):
 
 def add_custom_style(html_content, css_content=None):
     styled_html = f"<style>{css_content}</style>\n{html_content}" if css_content else html_content
-    return styled_html + FOOTER + COPY_BUTTON_SCRIPT + MATHJAX_SCRIPT
+    return f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Markdown to HTML</title>
+        <link rel="stylesheet" href="{css_content}">
+        {HtmlFormatter().get_style_defs('.highlight')}
+    </head>
+    <body>
+        {styled_html}
+        {FOOTER}
+        {COPY_BUTTON_SCRIPT}
+        {MATHJAX_SCRIPT}
+    </body>
+    </html>
+    """
 
 def read_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -158,8 +175,8 @@ def choose_mode():
     return input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
 
 def get_css_content(light_mode):
-    css_path = 'style_light.css' if light_mode else 'style_dark.css'
-    return read_file(css_path) if os.path.isfile(css_path) else ""
+    css_path = 'css/github-markdown-light.css' if light_mode else 'css/github-markdown-dark.css'
+    return read_file(css_path)
 
 def prompt_based_conversion():
     while True:
