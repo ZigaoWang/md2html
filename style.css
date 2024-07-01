@@ -14,11 +14,12 @@ h1, h2, h3 {
 }
 
 pre {
-    background: #f4f4f4;
+    background: #2d2d2d;
     padding: 10px;
     border-radius: 5px;
     overflow: auto;
     position: relative;
+    color: #f8f8f2;
 }
 
 code {
@@ -81,7 +82,7 @@ footer a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f4f4f4;
+    background: #2d2d2d;
     padding: 5px 10px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -90,7 +91,7 @@ footer a:hover {
 .language-label {
     font-weight: bold;
     font-size: 0.9em;
-    color: #555;
+    color: #f8f8f2;
 }
 
 img {
@@ -118,4 +119,21 @@ code[class*="language-"], pre[class*="language-"] {
     line-height: 1.5;
     tab-size: 4;
     hyphens: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
 }
