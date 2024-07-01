@@ -131,30 +131,3 @@ th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
-
-/* Dark mode styles */
-body.dark-mode {
-    background-color: #1e1e1e;
-    color: #c9d1d9;
-}
-
-.dark-mode h1, .dark-mode h2, .dark-mode h3 {
-    color: #c9d1d9;
-}
-
-.dark-mode pre {
-    background: #2d2d2d;
-    color: #f8f8f2;
-}
-
-.dark-mode .code-header {
-    background: #2d2d2d;
-}
-
-.dark-mode .language-label {
-    color: #f8f8f2;
-}
-
-.dark-mode th {
-    background-color: #2d2d2d;
-}

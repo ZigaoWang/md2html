@@ -54,7 +54,7 @@ def convert_md_to_html(md_text, light_mode=True):
     return soup.prettify()
 
 
-def add_custom_style(html_content, css_content=None, light_mode=True):
+def add_custom_style(html_content, css_content=None):
     if css_content:
         styled_html = f"<style>{css_content}</style>\n{html_content}"
     else:
@@ -93,7 +93,8 @@ def prompt_based_conversion():
             print("File not found. Please check the path and try again.")
             continue
 
-        css_path = 'style.css'  # Default CSS file
+        light_mode = input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
+        css_path = 'style_light.css' if light_mode else 'style_dark.css'
         css_content = ""
         if os.path.isfile(css_path):
             with open(css_path, 'r', encoding='utf-8') as css_file:
@@ -102,10 +103,8 @@ def prompt_based_conversion():
         with open(md_file_path, 'r', encoding='utf-8') as md_file:
             md_text = md_file.read()
 
-        light_mode = input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
-
         html = convert_md_to_html(md_text, light_mode=light_mode)
-        styled_html = add_custom_style(html, css_content, light_mode=light_mode)
+        styled_html = add_custom_style(html, css_content)
 
         output_file = input("Enter the name of the output HTML file (default: output.html): ").strip() or 'output.html'
         with open(output_file, 'w', encoding='utf-8') as html_file:
@@ -119,18 +118,18 @@ def arg_based_conversion(args):
         print(f"Error: File '{args.input_file}' not found.")
         return
 
+    light_mode = args.mode.lower() != 'dark'
+    css_path = 'style_light.css' if light_mode else 'style_dark.css'
     css_content = ""
-    if args.css_file and os.path.isfile(args.css_file):
-        with open(args.css_file, 'r', encoding='utf-8') as css_file:
+    if os.path.isfile(css_path):
+        with open(css_path, 'r', encoding='utf-8') as css_file:
             css_content = css_file.read()
 
     with open(args.input_file, 'r', encoding='utf-8') as md_file:
         md_text = md_file.read()
 
-    light_mode = args.mode.lower() != 'dark'
-
     html = convert_md_to_html(md_text, light_mode=light_mode)
-    styled_html = add_custom_style(html, css_content, light_mode=light_mode)
+    styled_html = add_custom_style(html, css_content)
 
     output_path = os.path.join(args.output_dir, args.output_file)
     with open(output_path, 'w', encoding='utf-8') as html_file:
