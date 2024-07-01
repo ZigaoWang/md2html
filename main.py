@@ -1,15 +1,16 @@
-import os
-import re
 import argparse
+import os
+import xml.etree.ElementTree as etree
+
 import markdown
+from bs4 import BeautifulSoup
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
-import xml.etree.ElementTree as etree  # Use the standard library's ElementTree
-from bs4 import BeautifulSoup
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
-from emoji_extension import EmojiExtension  # Import the custom emoji extension
+from pygments.lexers import get_lexer_by_name
+
+from emoji_extension import EmojiExtension
 
 
 def print_logo():
