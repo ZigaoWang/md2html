@@ -1,6 +1,10 @@
 import os
+import re
 import argparse
 import markdown
+from markdown.extensions import Extension
+from markdown.treeprocessors import Treeprocessor
+import xml.etree.ElementTree as etree  # Use the standard library's ElementTree
 from bs4 import BeautifulSoup
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -24,9 +28,67 @@ def print_logo():
     print("--------------------------------------------------")
 
 
+class TaskListExtension(Extension):
+    def extendMarkdown(self, md):
+        md.treeprocessors.register(TaskListTreeprocessor(md), 'tasklist', 25)
+
+
+class TaskListTreeprocessor(Treeprocessor):
+    def run(self, root):
+        for ul in root.iter('ul'):
+            for li in list(ul):
+                if li.text and (li.text.startswith('[ ] ') or li.text.startswith('[x] ')):
+                    new_li = etree.Element('li')
+                    if li.text.startswith('[ ] '):
+                        checkbox = etree.Element('input')
+                        checkbox.set('type', 'checkbox')
+                        checkbox.set('disabled', 'disabled')
+                        new_li.append(checkbox)
+                        new_li.text = li.text[3:]
+                    elif li.text.startswith('[x] '):
+                        checkbox = etree.Element('input')
+                        checkbox.set('type', 'checkbox')
+                        checkbox.set('disabled', 'disabled')
+                        checkbox.set('checked', 'checked')
+                        new_li.append(checkbox)
+                        new_li.text = li.text[3:]
+                    ul.insert(list(ul).index(li), new_li)
+                    ul.remove(li)
+
+
+class TocExtension(Extension):
+    def extendMarkdown(self, md):
+        md.treeprocessors.register(TocTreeprocessor(md), 'toc', 30)
+
+
+class TocTreeprocessor(Treeprocessor):
+    def run(self, root):
+        toc_html = etree.Element('div', {'class': 'toc'})
+        toc_title = etree.SubElement(toc_html, 'h2')
+        toc_title.text = 'Table of Contents'
+        toc_list = etree.SubElement(toc_html, 'ul')
+
+        for header in root.iter():
+            if header.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                level = int(header.tag[1])
+                toc_item = etree.SubElement(toc_list, 'li', {'class': f'toc-level-{level}'})
+                toc_link = etree.SubElement(toc_item, 'a', {'href': f'#{header.get("id")}'})
+                toc_link.text = header.text
+
+        for el in root.iter():
+            if el.tag == 'p' and el.text and '[toc]' in el.text.lower():
+                el.clear()
+                el.append(toc_html)
+
+        return root
+
+
 def convert_md_to_html(md_text, light_mode=True):
-    html = markdown.markdown(md_text,
-                             extensions=['fenced_code', 'tables', 'toc', 'footnotes', 'attr_list', 'md_in_html', 'extra', 'sane_lists', 'smarty', 'codehilite', EmojiExtension()])
+    extensions = [
+        'fenced_code', 'tables', 'footnotes', 'attr_list', 'md_in_html', 'extra', 'sane_lists', 'smarty', 'codehilite',
+        EmojiExtension(), TaskListExtension(), TocExtension()
+    ]
+    html = markdown.markdown(md_text, extensions=extensions)
     soup = BeautifulSoup(html, 'lxml')
 
     # Add syntax highlighting and copy button to code blocks
