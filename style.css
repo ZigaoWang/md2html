@@ -1,0 +1,27 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 20px;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+pre {
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+code {
+    background: #f4f4f4;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+a {
+    color: #0066cc;
+}
