@@ -23,7 +23,7 @@ def print_logo():
     print("--------------------------------------------------")
 
 
-def convert_md_to_html(md_text):
+def convert_md_to_html(md_text, light_mode=True):
     html = markdown.markdown(md_text,
                              extensions=['fenced_code', 'tables', 'toc', 'footnotes', 'attr_list', 'md_in_html'])
     soup = BeautifulSoup(html, 'lxml')
@@ -34,14 +34,19 @@ def convert_md_to_html(md_text):
         if parent.name == 'pre':
             language = code.get('class', [''])[0].replace('language-', '') or 'text'
             lexer = get_lexer_by_name(language, stripall=True)
-            formatter = HtmlFormatter()
+            formatter = HtmlFormatter(style='default' if light_mode else 'monokai')
             highlighted_code = highlight(code.string, lexer, formatter)
             code.replace_with(BeautifulSoup(highlighted_code, 'lxml'))
 
             copy_button_html = '''
             <div class="code-header">
                 <span class="language-label">{}</span>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <button class="copy-button" onclick="copyCode(this)">
+                    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+                        <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                        <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                    </svg>
+                </button>
             </div>
             '''.format(language)
             parent.insert_before(BeautifulSoup(copy_button_html, 'lxml'))
@@ -49,7 +54,7 @@ def convert_md_to_html(md_text):
     return soup.prettify()
 
 
-def add_custom_style(html_content, css_content=None):
+def add_custom_style(html_content, css_content=None, light_mode=True):
     if css_content:
         styled_html = f"<style>{css_content}</style>\n{html_content}"
     else:
@@ -66,8 +71,10 @@ def add_custom_style(html_content, css_content=None):
     function copyCode(button) {
         const code = button.closest('.code-header').nextElementSibling.innerText;
         navigator.clipboard.writeText(code).then(() => {
-            button.innerText = 'Copied!';
-            setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+            button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check"><path fill-rule="evenodd" d="M13.78 3.22a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 0 1 1.06-1.06L6 10.44l7.22-7.22a.75.75 0 0 1 1.06 0z"></path></svg>';
+            setTimeout(() => { 
+                button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>';
+            }, 2000);
         });
     }
     </script>
@@ -94,8 +101,11 @@ def prompt_based_conversion():
 
         with open(md_file_path, 'r', encoding='utf-8') as md_file:
             md_text = md_file.read()
-        html = convert_md_to_html(md_text)
-        styled_html = add_custom_style(html, css_content)
+
+        light_mode = input("Choose mode (light/dark, default is light): ").strip().lower() != 'dark'
+
+        html = convert_md_to_html(md_text, light_mode=light_mode)
+        styled_html = add_custom_style(html, css_content, light_mode=light_mode)
 
         output_file = input("Enter the name of the output HTML file (default: output.html): ").strip() or 'output.html'
         with open(output_file, 'w', encoding='utf-8') as html_file:
@@ -117,8 +127,10 @@ def arg_based_conversion(args):
     with open(args.input_file, 'r', encoding='utf-8') as md_file:
         md_text = md_file.read()
 
-    html = convert_md_to_html(md_text)
-    styled_html = add_custom_style(html, css_content)
+    light_mode = args.mode.lower() != 'dark'
+
+    html = convert_md_to_html(md_text, light_mode=light_mode)
+    styled_html = add_custom_style(html, css_content, light_mode=light_mode)
 
     output_path = os.path.join(args.output_dir, args.output_file)
     with open(output_path, 'w', encoding='utf-8') as html_file:
@@ -135,6 +147,7 @@ def main():
     parser.add_argument("-o", "--output_file", default="output.html", help="Name of the output HTML file.")
     parser.add_argument("-d", "--output_dir", default=".", help="Directory where the output HTML file will be saved.")
     parser.add_argument("-c", "--css_file", help="Path to a custom CSS file.")
+    parser.add_argument("-m", "--mode", default="light", help="Choose mode (light/dark). Default is light.")
 
     args = parser.parse_args()
 

@@ -14,12 +14,13 @@ h1, h2, h3 {
 }
 
 pre {
-    background: #2d2d2d;
+    background: #f4f4f4;
     padding: 10px;
     border-radius: 5px;
     overflow: auto;
     position: relative;
-    color: #f8f8f2;
+    color: #333;
+    margin: 0;
 }
 
 code {
@@ -65,24 +66,17 @@ footer a:hover {
 }
 
 .copy-button {
-    background: #007aff;
-    color: #fff;
+    background: none;
     border: none;
-    padding: 5px 10px;
     cursor: pointer;
-    border-radius: 5px;
     margin-left: 10px;
-}
-
-.copy-button:hover {
-    background: #005bb5;
 }
 
 .code-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #2d2d2d;
+    background: #f4f4f4;
     padding: 5px 10px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -91,7 +85,7 @@ footer a:hover {
 .language-label {
     font-weight: bold;
     font-size: 0.9em;
-    color: #f8f8f2;
+    color: #333;
 }
 
 img {
@@ -136,4 +130,31 @@ th, td {
 th {
     background-color: #f4f4f4;
     font-weight: bold;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #c9d1d9;
+}
+
+.dark-mode h1, .dark-mode h2, .dark-mode h3 {
+    color: #c9d1d9;
+}
+
+.dark-mode pre {
+    background: #2d2d2d;
+    color: #f8f8f2;
+}
+
+.dark-mode .code-header {
+    background: #2d2d2d;
+}
+
+.dark-mode .language-label {
+    color: #f8f8f2;
+}
+
+.dark-mode th {
+    background-color: #2d2d2d;
 }
