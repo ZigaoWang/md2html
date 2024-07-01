@@ -83,12 +83,15 @@ def add_custom_style(html_content, css_content=None):
 
     mathjax_script = """
     <script>
-    (function () {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-        document.head.appendChild(script);
-    })();
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
     """
 
