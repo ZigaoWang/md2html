@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
+from emoji_extension import EmojiExtension  # Import the custom emoji extension
 
 
 def print_logo():
@@ -25,13 +26,13 @@ def print_logo():
 
 def convert_md_to_html(md_text, light_mode=True):
     html = markdown.markdown(md_text,
-                             extensions=['fenced_code', 'tables', 'toc', 'footnotes', 'attr_list', 'md_in_html'])
+                             extensions=['fenced_code', 'tables', 'toc', 'footnotes', 'attr_list', 'md_in_html', 'extra', 'sane_lists', 'smarty', 'codehilite', EmojiExtension()])
     soup = BeautifulSoup(html, 'lxml')
 
     # Add syntax highlighting and copy button to code blocks
     for code in soup.find_all('code'):
         parent = code.parent
-        if parent.name == 'pre':
+        if parent.name == 'pre' and code.string:
             language = code.get('class', [''])[0].replace('language-', '') or 'text'
             lexer = get_lexer_by_name(language, stripall=True)
             formatter = HtmlFormatter(style='default' if light_mode else 'monokai')
