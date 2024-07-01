@@ -1,13 +1,16 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
     margin: 0 auto;
     max-width: 800px;
     padding: 20px;
+    color: #333;
+    background-color: #f9f9f9;
 }
 
 h1, h2, h3 {
-    color: #333;
+    color: #111;
+    font-weight: 600;
 }
 
 pre {
@@ -23,5 +26,20 @@ code {
 }
 
 a {
-    color: #0066cc;
+    color: #007aff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    padding-left: 20px;
+}
+
+blockquote {
+    border-left: 4px solid #007aff;
+    padding-left: 10px;
+    color: #666;
 }
