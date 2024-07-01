@@ -2,6 +2,9 @@ import os
 import argparse
 import markdown
 from bs4 import BeautifulSoup
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
 
 
 def print_logo():
@@ -21,8 +24,28 @@ def print_logo():
 
 
 def convert_md_to_html(md_text):
-    html = markdown.markdown(md_text, extensions=['fenced_code', 'tables', 'toc', 'footnotes'])
+    html = markdown.markdown(md_text,
+                             extensions=['fenced_code', 'tables', 'toc', 'footnotes', 'attr_list', 'md_in_html'])
     soup = BeautifulSoup(html, 'lxml')
+
+    # Add syntax highlighting and copy button to code blocks
+    for code in soup.find_all('code'):
+        parent = code.parent
+        if parent.name == 'pre':
+            language = code.get('class', [''])[0].replace('language-', '') or 'text'
+            lexer = get_lexer_by_name(language, stripall=True)
+            formatter = HtmlFormatter()
+            highlighted_code = highlight(code.string, lexer, formatter)
+            code.replace_with(BeautifulSoup(highlighted_code, 'lxml'))
+
+            copy_button_html = '''
+            <div class="code-header">
+                <span class="language-label">{}</span>
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            '''.format(language)
+            parent.insert_before(BeautifulSoup(copy_button_html, 'lxml'))
+
     return soup.prettify()
 
 
@@ -37,7 +60,20 @@ def add_custom_style(html_content, css_content=None):
         <p>Powered by <a href="https://github.com/ZigaoWang/md2html/">MD2HTML</a> by <a href="https://zigao.wang">Zigao Wang</a></p>
     </footer>
     """
-    return styled_html + footer
+
+    copy_button_script = """
+    <script>
+    function copyCode(button) {
+        const code = button.closest('.code-header').nextElementSibling.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            button.innerText = 'Copied!';
+            setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+        });
+    }
+    </script>
+    """
+
+    return styled_html + footer + copy_button_script
 
 
 def prompt_based_conversion():

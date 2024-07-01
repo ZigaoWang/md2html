@@ -18,6 +18,7 @@ pre {
     padding: 10px;
     border-radius: 5px;
     overflow: auto;
+    position: relative;
 }
 
 code {
@@ -60,4 +61,61 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
+}
+
+.copy-button {
+    background: #007aff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.copy-button:hover {
+    background: #005bb5;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f4f4f4;
+    padding: 5px 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.language-label {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #555;
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+}
+
+figcaption {
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+}
+
+code[class*="language-"], pre[class*="language-"] {
+    color: black;
+    background: none;
+    text-shadow: 0 1px white;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 1em;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    tab-size: 4;
+    hyphens: none;
 }
