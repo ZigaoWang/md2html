@@ -20,18 +20,6 @@ FOOTER = """
 </footer>
 """
 
-COPY_BUTTON_SCRIPT = """
-<script>
-function copyCode(button) {
-    const code = button.closest('.code-header').nextElementSibling.innerText;
-    navigator.clipboard.writeText(code).then(() => {
-        button.innerHTML = 'Copied!';
-        setTimeout(() => { button.innerHTML = 'Copy'; }, 2000);
-    });
-}
-</script>
-"""
-
 MATHJAX_SCRIPT = """
 <script>
 MathJax = {
@@ -70,14 +58,6 @@ def convert_md_to_html(md_text, css_mode):
             highlighted_code = highlight(code.string, lexer, formatter)
             code.replace_with(BeautifulSoup(highlighted_code, 'html.parser'))
 
-            copy_button_html = f'''
-            <div class="code-header">
-                <span class="language-label">{language}</span>
-                <button class="copy-button" onclick="copyCode(this)">Copy</button>
-            </div>
-            '''
-            parent.insert_before(BeautifulSoup(copy_button_html, 'html.parser'))
-
     css_file = "css/github-markdown.css"
     if css_mode == "only dark":
         css_file = "css/github-markdown-dark.css"
@@ -103,7 +83,6 @@ def add_custom_style(html_content, css_content):
     <body>
         {html_content}
         {FOOTER}
-        {COPY_BUTTON_SCRIPT}
         {MATHJAX_SCRIPT}
     </body>
     </html>
