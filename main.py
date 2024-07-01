@@ -39,21 +39,18 @@ class TaskListTreeprocessor(Treeprocessor):
             for li in list(ul):
                 if li.text and (li.text.startswith('[ ] ') or li.text.startswith('[x] ')):
                     new_li = etree.Element('li')
-                    if li.text.startswith('[ ] '):
-                        checkbox = etree.Element('input')
-                        checkbox.set('type', 'checkbox')
-                        checkbox.set('disabled', 'disabled')
-                        new_li.append(checkbox)
-                        new_li.text = li.text[3:]
-                    elif li.text.startswith('[x] '):
-                        checkbox = etree.Element('input')
-                        checkbox.set('type', 'checkbox')
-                        checkbox.set('disabled', 'disabled')
+                    checkbox = etree.Element('input')
+                    checkbox.set('type', 'checkbox')
+                    checkbox.set('disabled', 'disabled')
+
+                    if li.text.startswith('[x] '):
                         checkbox.set('checked', 'checked')
-                        new_li.append(checkbox)
-                        new_li.text = li.text[3:]
-                    ul.insert(list(ul).index(li), new_li)
+
+                    new_li.append(checkbox)
+                    new_li.text = li.text[3:]
+
                     ul.remove(li)
+                    ul.append(new_li)
 
 
 class TocExtension(Extension):
@@ -71,6 +68,8 @@ class TocTreeprocessor(Treeprocessor):
         for header in root.iter():
             if header.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
                 level = int(header.tag[1])
+                if 'id' not in header.attrib:
+                    header.set('id', header.text.replace(' ', '-').lower())
                 toc_item = etree.SubElement(toc_list, 'li', {'class': f'toc-level-{level}'})
                 toc_link = etree.SubElement(toc_item, 'a', {'href': f'#{header.get("id")}'})
                 toc_link.text = header.text
